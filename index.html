@@ -28,8 +28,8 @@
 <section class="card"><h3>Order History</h3><div id="history" class="hint">লোড হচ্ছে...</div><button class="btn soft" id="refresh">Refresh</button></section>
 </main>
 <script>
-const URL="https://posaixvqadslltmpbkin.supabase.co",KEY="sb_publishable_z978qQaJdWExPLHBTO6PQg_HoWFu_Kj";
-const db=supabase.createClient(URL,KEY);pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+const SUPABASE_URL="https://posaixvqadslltmpbkin.supabase.co",KEY="sb_publishable_z978qQaJdWExPLHBTO6PQg_HoWFu_Kj";
+const db=supabase.createClient(SUPABASE_URL,KEY);pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 const $=x=>document.getElementById(x),W=794,H=1123;let user=null,pgs=[[]],pi=0,sel=null,drag=null,busy=false;
 const id=()=>crypto.randomUUID(),cur=()=>pgs[pi],find=id=>{for(let p=0;p<pgs.length;p++){let x=pgs[p].find(y=>y.id===id);if(x)return{x,p}}};
 function say(t,err=false){$("msg").textContent=t;$("msg").style.color=err?"#b91c1c":"#166534"}
@@ -49,9 +49,32 @@ $("nextPage").onclick=()=>{let f=find(sel);if(f){let x=f.x;pgs[f.p]=pgs[f.p].fil
 $("cv").onpointerdown=e=>{let r=e.currentTarget.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height,h=[...cur()].reverse().find(z=>x>=z.x&&x<=z.x+z.w&&y>=z.y&&y<=z.y+z.h);if(h){sel=h.id;drag={id:h.id,dx:x-h.x,dy:y-h.y};controls();e.currentTarget.setPointerCapture(e.pointerId);draw()}};
 $("cv").onpointermove=e=>{if(!drag)return;let r=e.currentTarget.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height,f=find(drag.id);if(f){f.x.x=Math.max(0,Math.min(W-f.x.w,x-drag.dx));f.x.y=Math.max(0,Math.min(H-f.x.h,y-drag.dy));draw()}};
 $("cv").onpointerup=()=>drag=null;
-async function convert(file){if(file.type==="application/pdf"){let pdf=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise,a=[];for(let n=1;n<=pdf.numPages;n++){let p=await pdf.getPage(n),v=p.getViewport({scale:1.5}),c=document.createElement("canvas");c.width=v.width;c.height=v.height;await p.render({canvasContext:c.getContext("2d"),viewport:v}).promise;a.push({c,name:file.name+" - Page "+n})}return a}
-let u=URL.createObjectURL(file);try{let im=new Image();im.src=u;await im.decode();let c=document.createElement("canvas"),s=Math.min(2,2000/Math.max(im.width,im.height));c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);return[{c,name:file.name}]}finally{URL.revokeObjectURL(u)}}
-$("files").onchange=async e=>{for(let f of e.target.files){if(f.size>25*1024*1024){say(f.name+" 25MB-এর বেশি",true);continue}if(!["application/pdf","image/jpeg","image/png"].includes(f.type)){say("শুধু PDF/JPG/PNG",true);continue}try{for(let z of await convert(f)){let x={id:id(),name:z.name,c:z.c,x:35,y:35,w:724,h:1053,rot:0,bright:100,contrast:100,cl:0,ct:0,cr:0,cb:0};if(cur().length){x.x=55+(cur().length%4)*24;x.y=55+(cur().length%4)*24;x.w=520;x.h=735;}cur().push(x);sel=x.id}}catch(err){say("ফাইল খোলা যায়নি: "+err.message,true)}}e.target.value="";render()};
+async function convert(file){
+const isPdf=file.type==="application/pdf"||/\.pdf$/i.test(file.name);
+if(isPdf){
+  const data=new Uint8Array(await file.arrayBuffer());
+  const pdf=await pdfjsLib.getDocument({data, disableWorker:true}).promise;
+  const out=[];
+  for(let n=1;n<=pdf.numPages;n++){
+    const page=await pdf.getPage(n),viewport=page.getViewport({scale:2});
+    const canvas=document.createElement("canvas");canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);
+    const context=canvas.getContext("2d");
+    await page.render({canvasContext:context,viewport}).promise;
+    out.push({c:canvas,name:file.name+" - Page "+n});
+  }
+  return out;
+}
+const objectUrl=window.URL.createObjectURL(file);
+try{
+  const image=new Image();image.src=objectUrl;
+  await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=()=>reject(new Error("ছবিটি ব্রাউজারে খোলা যায়নি"));});
+  const canvas=document.createElement("canvas"),scale=Math.min(2,2000/Math.max(image.naturalWidth,image.naturalHeight));
+  canvas.width=Math.max(1,Math.round(image.naturalWidth*scale));canvas.height=Math.max(1,Math.round(image.naturalHeight*scale));
+  const context=canvas.getContext("2d");context.drawImage(image,0,0,canvas.width,canvas.height);
+  return [{c:canvas,name:file.name}];
+}finally{window.URL.revokeObjectURL(objectUrl)}
+}
+$("files").onchange=async e=>{for(let f of e.target.files){if(f.size>25*1024*1024){say(f.name+" 25MB-এর বেশি",true);continue}if(!["application/pdf","image/jpeg","image/png"].includes(f.type)&&!/\.(pdf|jpe?g|png)$/i.test(f.name)){say("শুধু PDF/JPG/PNG",true);continue}try{for(let z of await convert(f)){let x={id:id(),name:z.name,c:z.c,x:35,y:35,w:724,h:1053,rot:0,bright:100,contrast:100,cl:0,ct:0,cr:0,cb:0};if(cur().length){x.x=55+(cur().length%4)*24;x.y=55+(cur().length%4)*24;x.w=520;x.h=735;}cur().push(x);sel=x.id}}catch(err){say("ফাইল খোলা যায়নি: "+err.message,true)}}e.target.value="";render()};
 async function finalPdf(){let pdf=await PDFLib.PDFDocument.create();for(let p of pgs){let page=pdf.addPage([595.28,841.89]),c=document.createElement("canvas");c.width=W;c.height=H;let ctx=c.getContext("2d");ctx.fillStyle="white";ctx.fillRect(0,0,W,H);for(let x of p){let sx=x.cl/100*x.c.width,sy=x.ct/100*x.c.height,sw=x.c.width*(1-(x.cl+x.cr)/100),sh=x.c.height*(1-(x.ct+x.cb)/100);ctx.save();ctx.filter=`brightness(${x.bright}%) contrast(${x.contrast}%)`;ctx.translate(x.x+x.w/2,x.y+x.h/2);ctx.rotate(x.rot*Math.PI/180);ctx.drawImage(x.c,sx,sy,Math.max(1,sw),Math.max(1,sh),-x.w/2,-x.h/2,x.w,x.h);ctx.restore()}let png=await pdf.embedPng(c.toDataURL("image/png"));page.drawImage(png,{x:0,y:0,width:595.28,height:841.89})}return pdf.save()}
 async function history(){if(!user)return;let r=await db.from("print_orders").select("file_name,status,copies,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(20);$("history").textContent=r.error?r.error.message:(r.data.length?r.data.map(x=>`${x.file_name} · ${x.status} · ${x.copies} কপি`).join(" | "):"এখনও অর্ডার নেই")}
 $("refresh").onclick=history;
