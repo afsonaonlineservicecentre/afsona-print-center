@@ -1,255 +1,60 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!doctype html>
+<html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AFSONA PRINT CENTER</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <style>
-:root{--navy:#172554;--blue:#4f46e5;--bg:#f5f7fc;--muted:#718096}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);font-family:Inter,sans-serif;color:#172033}
-button,input,select{font:inherit}
-.topbar{background:white;padding:17px 5%;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 15px #1725540c}
-.brand{font:800 20px Poppins;color:var(--navy)}
-.brand span{color:var(--blue)}
-.lang{border:1px solid #e2e8f0;background:white;padding:9px 14px;border-radius:10px;cursor:pointer}
-.container{max-width:1100px;margin:35px auto;padding:0 18px}
-.hero{background:linear-gradient(120deg,#172554,#4338ca);color:white;border-radius:22px;padding:32px;margin-bottom:25px}
-.hero h1{font:700 29px Poppins;margin:0 0 8px}
-.hero p{color:#dbeafe;margin:0}
-.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:22px}
-.card{background:white;border:1px solid #e8edf5;border-radius:18px;padding:24px;box-shadow:0 8px 25px #17255408}
-.card h2{font:700 18px Poppins;margin:0 0 20px}
-label{display:block;font-size:13px;font-weight:700;margin:15px 0 8px}
-input,select{width:100%;padding:13px;border:1px solid #dce3ef;border-radius:10px;background:#fff;outline:none}
-input:focus,select:focus{border-color:var(--blue)}
-.btn{border:0;border-radius:11px;padding:13px 18px;background:var(--blue);color:white;font-weight:700;cursor:pointer;width:100%;margin-top:17px}
-.btn:hover{opacity:.9}
-.secondary{background:#eef2ff;color:var(--blue)}
-.drop{border:2px dashed #b9c4e0;background:#f8faff;border-radius:14px;padding:27px 12px;text-align:center}
-.drop input{border:0;background:transparent}
-.auth{max-width:440px;margin:30px auto}
-.auth .btn{margin-top:12px}
-.tabs{display:flex;gap:8px;margin-bottom:15px}
-.tabs button{flex:1;padding:10px;border:0;border-radius:9px;background:#eef2ff;color:#3949ab;font-weight:700}
-.tabs button.active{background:var(--blue);color:white}
-.order{border:1px solid #e7ebf3;border-radius:12px;padding:14px;margin:10px 0}
-.status{font-size:12px;font-weight:700;color:#b45309;background:#fff7ed;padding:5px 9px;border-radius:20px}
-.small{font-size:12px;color:var(--muted)}
-.hidden{display:none!important}
-footer{text-align:center;color:var(--muted);padding:30px;font-size:12px}
-@media(max-width:750px){.grid{grid-template-columns:1fr}.hero{padding:25px}.hero h1{font-size:23px}.container{margin:22px auto}.card{padding:19px}}
-</style>
-</head>
-<body>
-<header class="topbar">
-  <div class="brand">AFSONA <span>PRINT CENTER</span></div>
-  <button class="lang" id="langBtn">বাংলা</button>
-</header>
-
-<main class="container">
-<section class="hero">
-  <h1 id="welcome">Print Made Simple.</h1>
-  <p id="subtitle">Upload your document, choose your print settings and place your order online.</p>
-</section>
-
-<section class="card auth" id="authPanel">
-  <h2 id="authTitle">Welcome Back</h2>
-  <div class="tabs">
-    <button class="active" id="loginTab">Login</button>
-    <button id="signupTab">Create Account</button>
-  </div>
-  <label id="emailLabel">Email Address</label>
-  <input id="email" type="email" placeholder="you@example.com" autocomplete="email">
-  <label id="passwordLabel">Password</label>
-  <input id="password" type="password" placeholder="Enter password" autocomplete="current-password">
-  <button class="btn" id="authBtn">Login</button>
-  <p class="small" id="authMessage">Sign in to manage your print orders.</p>
-</section>
-
-<section id="dashboard" class="hidden">
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px">
-    <div><b id="dashTitle">Your Dashboard</b><div class="small" id="userEmail"></div></div>
-    <button class="lang" id="logoutBtn">Logout</button>
-  </div>
-  <div class="grid">
-    <section class="card">
-      <h2 id="uploadTitle">Create Print Order</h2>
-      <label id="fileLabel">Select PDF or Image</label>
-      <div class="drop">
-        <div style="font-size:30px">📄</div>
-        <p id="dropText">Choose a PDF, JPG or PNG file</p>
-        <input type="file" id="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png">
-      </div>
-      <label id="copiesLabel">Number of Copies</label>
-      <input id="copies" type="number" min="1" max="100" value="1">
-      <label id="paperLabel">Paper Size</label>
-      <select id="paper"><option value="A4">A4</option><option value="Letter">Letter</option><option value="Legal">Legal</option></select>
-      <label id="modeLabel">Print Type</label>
-      <select id="mode"><option value="color">Colour</option><option value="monochrome">Black & White</option></select>
-      <button class="btn" id="orderBtn">Submit Print Order</button>
-      <p class="small" id="orderMessage">Maximum file size: 25 MB. PDF, JPG and PNG only.</p>
-    </section>
-    <section class="card">
-      <h2 id="historyTitle">Order History</h2>
-      <div id="orders"><p class="small">Your orders will appear here.</p></div>
-      <button class="btn secondary" id="refreshBtn">Refresh Orders</button>
-    </section>
-  </div>
-</section>
+*{box-sizing:border-box}body{margin:0;background:#f4f6fb;color:#172033;font:15px Arial,sans-serif}.top{background:white;padding:16px 5%;font-weight:800;color:#172554;font-size:20px}.top span{color:#4f46e5}main{max-width:1100px;margin:22px auto;padding:0 14px}.hero{background:linear-gradient(120deg,#172554,#4338ca);color:white;padding:23px;border-radius:16px;margin-bottom:16px}.card{background:white;padding:18px;border-radius:14px;margin:14px 0;border:1px solid #e5eaf3}.btn{border:0;border-radius:9px;padding:11px 14px;background:#4f46e5;color:white;font-weight:bold;margin:4px;cursor:pointer}.soft{background:#eef2ff;color:#3730a3}.danger{background:#fee2e2;color:#991b1b}input,select{padding:9px;border:1px solid #ccd5e3;border-radius:8px;max-width:100%}.layout{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:14px}.stage{background:#e8ebf2;padding:12px;text-align:center;overflow:auto}.paper{width:min(100%,560px);aspect-ratio:210/297;background:white;margin:auto;box-shadow:0 2px 10px #0002}.paper canvas{width:100%;height:100%;touch-action:none}.tools{padding:12px;border:1px solid #e5eaf3;border-radius:10px}.tools label{display:block;font-size:12px;margin:9px 0 3px}.tools input,.tools select{width:100%}.pages,.files{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.item{padding:8px;border:1px solid #ddd;border-radius:8px;display:flex;gap:8px;align-items:center}.hint{font-size:12px;color:#64748b;line-height:1.5}@media(max-width:760px){.layout{grid-template-columns:1fr}}
+</style></head><body>
+<header class="top">AFSONA <span>PRINT CENTER</span></header><main>
+<div class="hero"><h2>ডকুমেন্ট সাজান, তারপর একবারেই অর্ডার করুন</h2><div>Upload → Edit → A4 Preview → Submit Order</div></div>
+<section class="card"><h3>১. একসঙ্গে ডকুমেন্ট নির্বাচন</h3><input id="files" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"><div id="filesList" class="files"></div><p class="hint">PDF-এর প্রতিটি পৃষ্ঠা এবং প্রতিটি ছবি A4 পেজে যোগ হবে। প্রতি ফাইল সর্বোচ্চ ২৫ MB।</p></section>
+<section class="card"><h3>২. A4 Edit Studio</h3><div id="pages" class="pages"></div><div class="layout"><div class="stage"><div class="paper"><canvas id="cv" width="794" height="1123"></canvas></div><p class="hint">ডকুমেন্ট ধরে আঙুল/মাউস দিয়ে পেজে সরান।</p></div><div class="tools">
+<label>এই পেজের ডকুমেন্ট</label><select id="select"></select>
+<label>Width (mm)</label><input id="w" type="number" min="5" max="205" value="180">
+<label>Height (mm)</label><input id="h" type="number" min="5" max="292" value="250">
+<label>Rotate</label><select id="rot"><option>0</option><option>90</option><option>180</option><option>270</option></select>
+<label>Brightness</label><input id="bright" type="range" min="40" max="180" value="100">
+<label>Contrast</label><input id="contrast" type="range" min="40" max="180" value="100">
+<label>Crop Left (%)</label><input id="cl" type="range" min="0" max="40" value="0">
+<label>Crop Top (%)</label><input id="ct" type="range" min="0" max="40" value="0">
+<label>Crop Right (%)</label><input id="cr" type="range" min="0" max="40" value="0">
+<label>Crop Bottom (%)</label><input id="cb" type="range" min="0" max="40" value="0">
+<button class="btn soft" id="fit">A4-এ Fit</button><button class="btn danger" id="del">Delete</button>
+<p class="hint">Width/Height বদলান, Crop ও আলো ঠিক করুন, তারপর ক্যানভাসে টেনে পছন্দমতো বসান। এক পেজে একাধিক ডকুমেন্ট রাখতে সাইজ ছোট করুন।</p>
+</div></div><button class="btn soft" id="newPage">+ নতুন A4 পেজ</button><button class="btn soft" id="nextPage">নির্বাচিতটি নতুন পেজে নিন</button></section>
+<section class="card"><h3>৩. Print Settings ও Submit</h3>কপি <input id="copies" type="number" min="1" max="100" value="1"> প্রিন্ট <select id="mode"><option value="color">Colour</option><option value="monochrome">Black & White</option></select><p class="hint">Submit-এর পর ফাইল লক হবে। একসঙ্গে সব পেজ একটি Final A4 PDF ও একটি অর্ডার হিসেবে জমা হবে।</p><button class="btn" id="submit">Final PDF তৈরি করে একবারে Submit Order</button><p id="msg"></p></section>
+<section class="card"><h3>Order History</h3><div id="history" class="hint">লোড হচ্ছে...</div><button class="btn soft" id="refresh">Refresh</button></section>
 </main>
-<footer>© 2026 AFSONA PRINT CENTER · Online Printing Service</footer>
-
 <script>
-const SUPABASE_URL = "https://posaixvqadslltmpbkin.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_z978qQaJdWExPLHBTO6PQg_HoWFu_Kj";
-
-const ready = !SUPABASE_URL.startsWith("PASTE_") &&
-              !SUPABASE_ANON_KEY.startsWith("PASTE_");
-
-const db = ready
-  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  : null;
-
-let currentMode = "login";
-let language = "en";
-let currentUser = null;
-
-const $ = id => document.getElementById(id);
-
-const words = {
-en:{
-welcome:"Print Made Simple.",subtitle:"Upload your document, choose your print settings and place your order online.",
-auth:"Welcome Back",login:"Login",signup:"Create Account",email:"Email Address",password:"Password",
-dash:"Your Dashboard",logout:"Logout",upload:"Create Print Order",file:"Select PDF or Image",
-drop:"Choose a PDF, JPG or PNG file",copies:"Number of Copies",paper:"Paper Size",
-mode:"Print Type",order:"Submit Print Order",history:"Order History",refresh:"Refresh Orders",
-message:"Maximum file size: 25 MB. PDF, JPG and PNG only.",empty:"No orders yet.",
-success:"Your print order has been submitted!",loading:"Please wait...",language:"বাংলা"
-},
-bn:{
-welcome:"প্রিন্ট এখন আরও সহজ।",subtitle:"ফাইল আপলোড করুন, প্রিন্ট সেটিংস বেছে নিয়ে অনলাইনে অর্ডার দিন।",
-auth:"স্বাগতম",login:"লগইন",signup:"অ্যাকাউন্ট তৈরি করুন",email:"ইমেইল ঠিকানা",password:"পাসওয়ার্ড",
-dash:"আপনার ড্যাশবোর্ড",logout:"লগআউট",upload:"নতুন প্রিন্ট অর্ডার",file:"PDF অথবা ছবি নির্বাচন করুন",
-drop:"PDF, JPG অথবা PNG ফাইল বেছে নিন",copies:"কপির সংখ্যা",paper:"পেপারের সাইজ",
-mode:"প্রিন্টের ধরন",order:"প্রিন্ট অর্ডার জমা দিন",history:"অর্ডারের ইতিহাস",refresh:"রিফ্রেশ করুন",
-message:"সর্বোচ্চ ফাইল সাইজ ২৫ MB। PDF, JPG ও PNG গ্রহণযোগ্য।",empty:"এখনও কোনো অর্ডার নেই।",
-success:"আপনার প্রিন্ট অর্ডার জমা হয়েছে!",loading:"অপেক্ষা করুন...",language:"English"
-}
-};
-
-function translate(){
- const w=words[language];
- $("welcome").textContent=w.welcome;$("subtitle").textContent=w.subtitle;
- $("authTitle").textContent=w.auth;$("loginTab").textContent=w.login;
- $("signupTab").textContent=w.signup;$("emailLabel").textContent=w.email;
- $("passwordLabel").textContent=w.password;$("dashTitle").textContent=w.dash;
- $("logoutBtn").textContent=w.logout;$("uploadTitle").textContent=w.upload;
- $("fileLabel").textContent=w.file;$("dropText").textContent=w.drop;
- $("copiesLabel").textContent=w.copies;$("paperLabel").textContent=w.paper;
- $("modeLabel").textContent=w.mode;$("orderBtn").textContent=w.order;
- $("historyTitle").textContent=w.history;$("refreshBtn").textContent=w.refresh;
- $("orderMessage").textContent=w.message;$("langBtn").textContent=w.language;
-}
-$("langBtn").onclick=()=>{language=language==="en"?"bn":"en";translate();};
-
-function showAuth(){
- $("authPanel").classList.remove("hidden");
- $("dashboard").classList.add("hidden");
-}
-function showDashboard(user){
- currentUser=user;
- $("authPanel").classList.add("hidden");
- $("dashboard").classList.remove("hidden");
- $("userEmail").textContent=user.email||"";
- loadOrders();
-}
-function setAuthMode(mode){
- currentMode=mode;
- $("loginTab").classList.toggle("active",mode==="login");
- $("signupTab").classList.toggle("active",mode==="signup");
- $("authBtn").textContent=words[language][mode];
- $("authTitle").textContent=mode==="login"?words[language].auth:words[language].signup;
-}
-$("loginTab").onclick=()=>setAuthMode("login");
-$("signupTab").onclick=()=>setAuthMode("signup");
-
-$("authBtn").onclick=async()=>{
- if(!db){$("authMessage").textContent="Please configure your Supabase URL and Anon Key first.";return;}
- const email=$("email").value.trim(),password=$("password").value;
- if(!email||password.length<6){$("authMessage").textContent="Enter a valid email and password (minimum 6 characters).";return;}
- $("authBtn").disabled=true;
- const result=currentMode==="login"
- ? await db.auth.signInWithPassword({email,password})
- : await db.auth.signUp({email,password});
- $("authBtn").disabled=false;
- if(result.error){$("authMessage").textContent=result.error.message;return;}
- if(result.data.user && result.data.session)showDashboard(result.data.user);
- else $("authMessage").textContent="Account created. Check your email to confirm, then login.";
-};
-
-$("logoutBtn").onclick=async()=>{await db.auth.signOut();currentUser=null;showAuth();};
-
-$("orderBtn").onclick=async()=>{
- if(!db||!currentUser){$("orderMessage").textContent="Please login first.";return;}
- const file=$("file").files[0],copies=Number($("copies").value);
- if(!file){$("orderMessage").textContent="Please select a file.";return;}
- if(file.size>25*1024*1024){$("orderMessage").textContent="File is larger than 25 MB.";return;}
- if(!["application/pdf","image/jpeg","image/png"].includes(file.type)){
- $("orderMessage").textContent="Only PDF, JPG and PNG files are allowed.";return;}
- if(!Number.isInteger(copies)||copies<1||copies>100){$("orderMessage").textContent="Copies must be between 1 and 100.";return;}
- $("orderBtn").disabled=true;
- $("orderMessage").textContent=words[language].loading;
- const path=currentUser.id+"/"+crypto.randomUUID()+"-"+file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
- const upload=await db.storage.from("print-files").upload(path,file,{contentType:file.type,upsert:false});
- if(upload.error){$("orderMessage").textContent=upload.error.message;$("orderBtn").disabled=false;return;}
- const insert=await db.from("print_orders").insert({
- user_id:currentUser.id,file_path:path,file_name:file.name,copies,
- paper_size:$("paper").value,print_mode:$("mode").value,status:"pending"
- });
- if(insert.error){
- await db.storage.from("print-files").remove([path]);
- $("orderMessage").textContent=insert.error.message;
- }else{
- $("orderMessage").textContent=words[language].success;
- $("file").value="";await loadOrders();
- }
- $("orderBtn").disabled=false;
-};
-
-async function loadOrders(){
- if(!db||!currentUser)return;
- const {data,error}=await db.from("print_orders")
- .select("id,file_name,copies,paper_size,print_mode,status,created_at")
- .order("created_at",{ascending:false}).limit(30);
- if(error){$("orders").textContent=error.message;return;}
- if(!data.length){$("orders").textContent=words[language].empty;return;}
- $("orders").innerHTML="";
- data.forEach(o=>{
- const div=document.createElement("div");div.className="order";
- const name=document.createElement("b");name.textContent=o.file_name;
- const detail=document.createElement("div");detail.className="small";
- detail.textContent=`${o.copies} copies · ${o.paper_size} · ${o.print_mode} · ${new Date(o.created_at).toLocaleString()}`;
- const status=document.createElement("span");status.className="status";status.textContent=o.status;
- div.append(name,detail,status);$("orders").append(div);
- });
-}
-$("refreshBtn").onclick=loadOrders;
-
-async function init(){
- if(!db){$("authMessage").textContent="Website setup pending: Supabase connection details are required.";return;}
- const {data}=await db.auth.getSession();
- if(data.session)showDashboard(data.session.user);
- db.auth.onAuthStateChange((_event,session)=>{
- if(session)showDashboard(session.user);
- else{currentUser=null;showAuth();}
- });
-}
-translate();init();
-</script>
-</body>
-</html>
+const URL="https://posaixvqadslltmpbkin.supabase.co",KEY="sb_publishable_z978qQaJdWExPLHBTO6PQg_HoWFu_Kj";
+const db=supabase.createClient(URL,KEY);pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+const $=x=>document.getElementById(x),W=794,H=1123;let user=null,pgs=[[]],pi=0,sel=null,drag=null,busy=false;
+const id=()=>crypto.randomUUID(),cur=()=>pgs[pi],find=id=>{for(let p=0;p<pgs.length;p++){let x=pgs[p].find(y=>y.id===id);if(x)return{x,p}}};
+function say(t,err=false){$("msg").textContent=t;$("msg").style.color=err?"#b91c1c":"#166534"}
+async function auth(){let s=await db.auth.getSession();if(s.data.session){user=s.data.session.user;return}let r=await db.auth.signInAnonymously();if(r.error)throw r.error;user=r.data.user}
+function controls(){let f=find(sel),x=f?.x;if(!x)return;$("w").value=Math.round(x.w*210/W);$("h").value=Math.round(x.h*297/H);$("rot").value=x.rot;$("bright").value=x.bright;$("contrast").value=x.contrast;$("cl").value=x.cl;$("ct").value=x.ct;$("cr").value=x.cr;$("cb").value=x.cb}
+function render(){ $("pages").innerHTML="";pgs.forEach((p,i)=>{let b=document.createElement("button");b.className="btn "+(i===pi?"":"soft");b.textContent="A4 "+(i+1);b.onclick=()=>{pi=i;render();draw()};$("pages").append(b)});$("select").innerHTML="";cur().forEach((x,i)=>{let o=document.createElement("option");o.value=x.id;o.textContent=x.name;$("select").append(o)});if(!cur().length){$("select").innerHTML="<option>এই পেজ খালি</option>";sel=null}else if(!cur().some(x=>x.id===sel))sel=cur()[0].id;if(sel)$("select").value=sel;controls();draw();fileList()}
+function draw(){let c=$("cv"),ctx=c.getContext("2d");ctx.fillStyle="white";ctx.fillRect(0,0,W,H);cur().forEach(x=>{let sx=x.cl/100*x.c.width,sy=x.ct/100*x.c.height,sw=x.c.width*(1-(x.cl+x.cr)/100),sh=x.c.height*(1-(x.ct+x.cb)/100);ctx.save();ctx.filter=`brightness(${x.bright}%) contrast(${x.contrast}%)`;ctx.translate(x.x+x.w/2,x.y+x.h/2);ctx.rotate(x.rot*Math.PI/180);ctx.drawImage(x.c,sx,sy,Math.max(1,sw),Math.max(1,sh),-x.w/2,-x.h/2,x.w,x.h);ctx.restore();if(x.id===sel){ctx.strokeStyle="#4f46e5";ctx.lineWidth=3;ctx.strokeRect(x.x,x.y,x.w,x.h)}})}
+function fileList(){$("filesList").innerHTML="";pgs.forEach((p,n)=>p.forEach(x=>{let d=document.createElement("div");d.className="item";let t=document.createElement("span");t.textContent=x.name+" · A4 "+(n+1);let b=document.createElement("button");b.className="btn soft";b.textContent="Edit";b.onclick=()=>{pi=n;sel=x.id;render()};d.append(t,b);$("filesList").append(d)}))}
+$("select").onchange=()=>{sel=$("select").value;controls();draw()};
+function set(k,v){let f=find(sel);if(f){f.x[k]=v;draw()}}
+$("w").onchange=()=>set("w",Math.max(20,+$("w").value*W/210));$("h").onchange=()=>set("h",Math.max(20,+$("h").value*H/297));
+[["rot","rot",Number],["bright","bright",Number],["contrast","contrast",Number],["cl","cl",Number],["ct","ct",Number],["cr","cr",Number],["cb","cb",Number]].forEach(([a,b,fn])=>$(a).oninput=()=>set(b,fn($(a).value)));
+$("fit").onclick=()=>{let f=find(sel);if(f){Object.assign(f.x,{x:35,y:35,w:724,h:1053});controls();draw()}};
+$("del").onclick=()=>{let f=find(sel);if(f){pgs[f.p]=pgs[f.p].filter(x=>x.id!==sel);sel=null;render()}};
+$("newPage").onclick=()=>{pgs.push([]);pi=pgs.length-1;render()};
+$("nextPage").onclick=()=>{let f=find(sel);if(f){let x=f.x;pgs[f.p]=pgs[f.p].filter(y=>y.id!==sel);pgs.push([x]);pi=pgs.length-1;render()}};
+$("cv").onpointerdown=e=>{let r=e.currentTarget.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height,h=[...cur()].reverse().find(z=>x>=z.x&&x<=z.x+z.w&&y>=z.y&&y<=z.y+z.h);if(h){sel=h.id;drag={id:h.id,dx:x-h.x,dy:y-h.y};controls();e.currentTarget.setPointerCapture(e.pointerId);draw()}};
+$("cv").onpointermove=e=>{if(!drag)return;let r=e.currentTarget.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height,f=find(drag.id);if(f){f.x.x=Math.max(0,Math.min(W-f.x.w,x-drag.dx));f.x.y=Math.max(0,Math.min(H-f.x.h,y-drag.dy));draw()}};
+$("cv").onpointerup=()=>drag=null;
+async function convert(file){if(file.type==="application/pdf"){let pdf=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise,a=[];for(let n=1;n<=pdf.numPages;n++){let p=await pdf.getPage(n),v=p.getViewport({scale:1.5}),c=document.createElement("canvas");c.width=v.width;c.height=v.height;await p.render({canvasContext:c.getContext("2d"),viewport:v}).promise;a.push({c,name:file.name+" - Page "+n})}return a}
+let u=URL.createObjectURL(file);try{let im=new Image();im.src=u;await im.decode();let c=document.createElement("canvas"),s=Math.min(2,2000/Math.max(im.width,im.height));c.width=im.width*s;c.height=im.height*s;c.getContext("2d").drawImage(im,0,0,c.width,c.height);return[{c,name:file.name}]}finally{URL.revokeObjectURL(u)}}
+$("files").onchange=async e=>{for(let f of e.target.files){if(f.size>25*1024*1024){say(f.name+" 25MB-এর বেশি",true);continue}if(!["application/pdf","image/jpeg","image/png"].includes(f.type)){say("শুধু PDF/JPG/PNG",true);continue}try{for(let z of await convert(f)){let x={id:id(),name:z.name,c:z.c,x:35,y:35,w:724,h:1053,rot:0,bright:100,contrast:100,cl:0,ct:0,cr:0,cb:0};if(cur().length){x.x=55+(cur().length%4)*24;x.y=55+(cur().length%4)*24;x.w=520;x.h=735;}cur().push(x);sel=x.id}}catch(err){say("ফাইল খোলা যায়নি: "+err.message,true)}}e.target.value="";render()};
+async function finalPdf(){let pdf=await PDFLib.PDFDocument.create();for(let p of pgs){let page=pdf.addPage([595.28,841.89]),c=document.createElement("canvas");c.width=W;c.height=H;let ctx=c.getContext("2d");ctx.fillStyle="white";ctx.fillRect(0,0,W,H);for(let x of p){let sx=x.cl/100*x.c.width,sy=x.ct/100*x.c.height,sw=x.c.width*(1-(x.cl+x.cr)/100),sh=x.c.height*(1-(x.ct+x.cb)/100);ctx.save();ctx.filter=`brightness(${x.bright}%) contrast(${x.contrast}%)`;ctx.translate(x.x+x.w/2,x.y+x.h/2);ctx.rotate(x.rot*Math.PI/180);ctx.drawImage(x.c,sx,sy,Math.max(1,sw),Math.max(1,sh),-x.w/2,-x.h/2,x.w,x.h);ctx.restore()}let png=await pdf.embedPng(c.toDataURL("image/png"));page.drawImage(png,{x:0,y:0,width:595.28,height:841.89})}return pdf.save()}
+async function history(){if(!user)return;let r=await db.from("print_orders").select("file_name,status,copies,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(20);$("history").textContent=r.error?r.error.message:(r.data.length?r.data.map(x=>`${x.file_name} · ${x.status} · ${x.copies} কপি`).join(" | "):"এখনও অর্ডার নেই")}
+$("refresh").onclick=history;
+$("submit").onclick=async()=>{if(busy)return;if(!pgs.some(p=>p.length)){say("আগে ডকুমেন্ট নির্বাচন করুন",true);return}let copies=+$("copies").value;if(!Number.isInteger(copies)||copies<1||copies>100){say("কপি ১-১০০ হতে হবে",true);return}busy=true;$("submit").disabled=true;try{await auth();say("Final A4 PDF তৈরি হচ্ছে...");let bytes=await finalPdf(),blob=new Blob([bytes],{type:"application/pdf"}),name="AFSONA-"+new Date().toISOString().replace(/[:.]/g,"-")+".pdf",path=user.id+"/"+id()+"-"+name;let up=await db.storage.from("print-files").upload(path,blob,{contentType:"application/pdf"});if(up.error)throw up.error;let ins=await db.from("print_orders").insert({user_id:user.id,file_path:path,file_name:name,copies,paper_size:"A4",print_mode:$("mode").value,status:"pending"});if(ins.error){await db.storage.from("print-files").remove([path]);throw ins.error}say("একটি অর্ডার সফলভাবে জমা হয়েছে। কম্পিউটারের Bridge প্রিন্ট করবে।");pgs=[[]];pi=0;sel=null;render();await history()}catch(e){say("অর্ডার জমা হয়নি: "+e.message,true)}finally{busy=false;$("submit").disabled=false}};
+(async()=>{try{await auth();await history()}catch(e){$("msg").textContent="Guest Sign-in ব্যর্থ: "+e.message}})();render();
+</script></body></html>
