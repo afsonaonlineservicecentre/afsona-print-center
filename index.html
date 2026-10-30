@@ -1,0 +1,255 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AFSONA PRINT CENTER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--navy:#172554;--blue:#4f46e5;--bg:#f5f7fc;--muted:#718096}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Inter,sans-serif;color:#172033}
+button,input,select{font:inherit}
+.topbar{background:white;padding:17px 5%;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 15px #1725540c}
+.brand{font:800 20px Poppins;color:var(--navy)}
+.brand span{color:var(--blue)}
+.lang{border:1px solid #e2e8f0;background:white;padding:9px 14px;border-radius:10px;cursor:pointer}
+.container{max-width:1100px;margin:35px auto;padding:0 18px}
+.hero{background:linear-gradient(120deg,#172554,#4338ca);color:white;border-radius:22px;padding:32px;margin-bottom:25px}
+.hero h1{font:700 29px Poppins;margin:0 0 8px}
+.hero p{color:#dbeafe;margin:0}
+.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:22px}
+.card{background:white;border:1px solid #e8edf5;border-radius:18px;padding:24px;box-shadow:0 8px 25px #17255408}
+.card h2{font:700 18px Poppins;margin:0 0 20px}
+label{display:block;font-size:13px;font-weight:700;margin:15px 0 8px}
+input,select{width:100%;padding:13px;border:1px solid #dce3ef;border-radius:10px;background:#fff;outline:none}
+input:focus,select:focus{border-color:var(--blue)}
+.btn{border:0;border-radius:11px;padding:13px 18px;background:var(--blue);color:white;font-weight:700;cursor:pointer;width:100%;margin-top:17px}
+.btn:hover{opacity:.9}
+.secondary{background:#eef2ff;color:var(--blue)}
+.drop{border:2px dashed #b9c4e0;background:#f8faff;border-radius:14px;padding:27px 12px;text-align:center}
+.drop input{border:0;background:transparent}
+.auth{max-width:440px;margin:30px auto}
+.auth .btn{margin-top:12px}
+.tabs{display:flex;gap:8px;margin-bottom:15px}
+.tabs button{flex:1;padding:10px;border:0;border-radius:9px;background:#eef2ff;color:#3949ab;font-weight:700}
+.tabs button.active{background:var(--blue);color:white}
+.order{border:1px solid #e7ebf3;border-radius:12px;padding:14px;margin:10px 0}
+.status{font-size:12px;font-weight:700;color:#b45309;background:#fff7ed;padding:5px 9px;border-radius:20px}
+.small{font-size:12px;color:var(--muted)}
+.hidden{display:none!important}
+footer{text-align:center;color:var(--muted);padding:30px;font-size:12px}
+@media(max-width:750px){.grid{grid-template-columns:1fr}.hero{padding:25px}.hero h1{font-size:23px}.container{margin:22px auto}.card{padding:19px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">AFSONA <span>PRINT CENTER</span></div>
+  <button class="lang" id="langBtn">বাংলা</button>
+</header>
+
+<main class="container">
+<section class="hero">
+  <h1 id="welcome">Print Made Simple.</h1>
+  <p id="subtitle">Upload your document, choose your print settings and place your order online.</p>
+</section>
+
+<section class="card auth" id="authPanel">
+  <h2 id="authTitle">Welcome Back</h2>
+  <div class="tabs">
+    <button class="active" id="loginTab">Login</button>
+    <button id="signupTab">Create Account</button>
+  </div>
+  <label id="emailLabel">Email Address</label>
+  <input id="email" type="email" placeholder="you@example.com" autocomplete="email">
+  <label id="passwordLabel">Password</label>
+  <input id="password" type="password" placeholder="Enter password" autocomplete="current-password">
+  <button class="btn" id="authBtn">Login</button>
+  <p class="small" id="authMessage">Sign in to manage your print orders.</p>
+</section>
+
+<section id="dashboard" class="hidden">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px">
+    <div><b id="dashTitle">Your Dashboard</b><div class="small" id="userEmail"></div></div>
+    <button class="lang" id="logoutBtn">Logout</button>
+  </div>
+  <div class="grid">
+    <section class="card">
+      <h2 id="uploadTitle">Create Print Order</h2>
+      <label id="fileLabel">Select PDF or Image</label>
+      <div class="drop">
+        <div style="font-size:30px">📄</div>
+        <p id="dropText">Choose a PDF, JPG or PNG file</p>
+        <input type="file" id="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png">
+      </div>
+      <label id="copiesLabel">Number of Copies</label>
+      <input id="copies" type="number" min="1" max="100" value="1">
+      <label id="paperLabel">Paper Size</label>
+      <select id="paper"><option value="A4">A4</option><option value="Letter">Letter</option><option value="Legal">Legal</option></select>
+      <label id="modeLabel">Print Type</label>
+      <select id="mode"><option value="color">Colour</option><option value="monochrome">Black & White</option></select>
+      <button class="btn" id="orderBtn">Submit Print Order</button>
+      <p class="small" id="orderMessage">Maximum file size: 25 MB. PDF, JPG and PNG only.</p>
+    </section>
+    <section class="card">
+      <h2 id="historyTitle">Order History</h2>
+      <div id="orders"><p class="small">Your orders will appear here.</p></div>
+      <button class="btn secondary" id="refreshBtn">Refresh Orders</button>
+    </section>
+  </div>
+</section>
+</main>
+<footer>© 2026 AFSONA PRINT CENTER · Online Printing Service</footer>
+
+<script>
+const SUPABASE_URL = "https://posaixvqadslltmpbkin.supabase.co/rest/v1/";
+const SUPABASE_ANON_KEY = "sb_publishable_z978qQaJdWExPLHBTO6PQg_HoWFu_Kj";
+
+const ready = !SUPABASE_URL.startsWith("PASTE_") &&
+              !SUPABASE_ANON_KEY.startsWith("PASTE_");
+
+const db = ready
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+let currentMode = "login";
+let language = "en";
+let currentUser = null;
+
+const $ = id => document.getElementById(id);
+
+const words = {
+en:{
+welcome:"Print Made Simple.",subtitle:"Upload your document, choose your print settings and place your order online.",
+auth:"Welcome Back",login:"Login",signup:"Create Account",email:"Email Address",password:"Password",
+dash:"Your Dashboard",logout:"Logout",upload:"Create Print Order",file:"Select PDF or Image",
+drop:"Choose a PDF, JPG or PNG file",copies:"Number of Copies",paper:"Paper Size",
+mode:"Print Type",order:"Submit Print Order",history:"Order History",refresh:"Refresh Orders",
+message:"Maximum file size: 25 MB. PDF, JPG and PNG only.",empty:"No orders yet.",
+success:"Your print order has been submitted!",loading:"Please wait...",language:"বাংলা"
+},
+bn:{
+welcome:"প্রিন্ট এখন আরও সহজ।",subtitle:"ফাইল আপলোড করুন, প্রিন্ট সেটিংস বেছে নিয়ে অনলাইনে অর্ডার দিন।",
+auth:"স্বাগতম",login:"লগইন",signup:"অ্যাকাউন্ট তৈরি করুন",email:"ইমেইল ঠিকানা",password:"পাসওয়ার্ড",
+dash:"আপনার ড্যাশবোর্ড",logout:"লগআউট",upload:"নতুন প্রিন্ট অর্ডার",file:"PDF অথবা ছবি নির্বাচন করুন",
+drop:"PDF, JPG অথবা PNG ফাইল বেছে নিন",copies:"কপির সংখ্যা",paper:"পেপারের সাইজ",
+mode:"প্রিন্টের ধরন",order:"প্রিন্ট অর্ডার জমা দিন",history:"অর্ডারের ইতিহাস",refresh:"রিফ্রেশ করুন",
+message:"সর্বোচ্চ ফাইল সাইজ ২৫ MB। PDF, JPG ও PNG গ্রহণযোগ্য।",empty:"এখনও কোনো অর্ডার নেই।",
+success:"আপনার প্রিন্ট অর্ডার জমা হয়েছে!",loading:"অপেক্ষা করুন...",language:"English"
+}
+};
+
+function translate(){
+ const w=words[language];
+ $("welcome").textContent=w.welcome;$("subtitle").textContent=w.subtitle;
+ $("authTitle").textContent=w.auth;$("loginTab").textContent=w.login;
+ $("signupTab").textContent=w.signup;$("emailLabel").textContent=w.email;
+ $("passwordLabel").textContent=w.password;$("dashTitle").textContent=w.dash;
+ $("logoutBtn").textContent=w.logout;$("uploadTitle").textContent=w.upload;
+ $("fileLabel").textContent=w.file;$("dropText").textContent=w.drop;
+ $("copiesLabel").textContent=w.copies;$("paperLabel").textContent=w.paper;
+ $("modeLabel").textContent=w.mode;$("orderBtn").textContent=w.order;
+ $("historyTitle").textContent=w.history;$("refreshBtn").textContent=w.refresh;
+ $("orderMessage").textContent=w.message;$("langBtn").textContent=w.language;
+}
+$("langBtn").onclick=()=>{language=language==="en"?"bn":"en";translate();};
+
+function showAuth(){
+ $("authPanel").classList.remove("hidden");
+ $("dashboard").classList.add("hidden");
+}
+function showDashboard(user){
+ currentUser=user;
+ $("authPanel").classList.add("hidden");
+ $("dashboard").classList.remove("hidden");
+ $("userEmail").textContent=user.email||"";
+ loadOrders();
+}
+function setAuthMode(mode){
+ currentMode=mode;
+ $("loginTab").classList.toggle("active",mode==="login");
+ $("signupTab").classList.toggle("active",mode==="signup");
+ $("authBtn").textContent=words[language][mode];
+ $("authTitle").textContent=mode==="login"?words[language].auth:words[language].signup;
+}
+$("loginTab").onclick=()=>setAuthMode("login");
+$("signupTab").onclick=()=>setAuthMode("signup");
+
+$("authBtn").onclick=async()=>{
+ if(!db){$("authMessage").textContent="Please configure your Supabase URL and Anon Key first.";return;}
+ const email=$("email").value.trim(),password=$("password").value;
+ if(!email||password.length<6){$("authMessage").textContent="Enter a valid email and password (minimum 6 characters).";return;}
+ $("authBtn").disabled=true;
+ const result=currentMode==="login"
+ ? await db.auth.signInWithPassword({email,password})
+ : await db.auth.signUp({email,password});
+ $("authBtn").disabled=false;
+ if(result.error){$("authMessage").textContent=result.error.message;return;}
+ if(result.data.user && result.data.session)showDashboard(result.data.user);
+ else $("authMessage").textContent="Account created. Check your email to confirm, then login.";
+};
+
+$("logoutBtn").onclick=async()=>{await db.auth.signOut();currentUser=null;showAuth();};
+
+$("orderBtn").onclick=async()=>{
+ if(!db||!currentUser){$("orderMessage").textContent="Please login first.";return;}
+ const file=$("file").files[0],copies=Number($("copies").value);
+ if(!file){$("orderMessage").textContent="Please select a file.";return;}
+ if(file.size>25*1024*1024){$("orderMessage").textContent="File is larger than 25 MB.";return;}
+ if(!["application/pdf","image/jpeg","image/png"].includes(file.type)){
+ $("orderMessage").textContent="Only PDF, JPG and PNG files are allowed.";return;}
+ if(!Number.isInteger(copies)||copies<1||copies>100){$("orderMessage").textContent="Copies must be between 1 and 100.";return;}
+ $("orderBtn").disabled=true;
+ $("orderMessage").textContent=words[language].loading;
+ const path=currentUser.id+"/"+crypto.randomUUID()+"-"+file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+ const upload=await db.storage.from("print-files").upload(path,file,{contentType:file.type,upsert:false});
+ if(upload.error){$("orderMessage").textContent=upload.error.message;$("orderBtn").disabled=false;return;}
+ const insert=await db.from("print_orders").insert({
+ user_id:currentUser.id,file_path:path,file_name:file.name,copies,
+ paper_size:$("paper").value,print_mode:$("mode").value,status:"pending"
+ });
+ if(insert.error){
+ await db.storage.from("print-files").remove([path]);
+ $("orderMessage").textContent=insert.error.message;
+ }else{
+ $("orderMessage").textContent=words[language].success;
+ $("file").value="";await loadOrders();
+ }
+ $("orderBtn").disabled=false;
+};
+
+async function loadOrders(){
+ if(!db||!currentUser)return;
+ const {data,error}=await db.from("print_orders")
+ .select("id,file_name,copies,paper_size,print_mode,status,created_at")
+ .order("created_at",{ascending:false}).limit(30);
+ if(error){$("orders").textContent=error.message;return;}
+ if(!data.length){$("orders").textContent=words[language].empty;return;}
+ $("orders").innerHTML="";
+ data.forEach(o=>{
+ const div=document.createElement("div");div.className="order";
+ const name=document.createElement("b");name.textContent=o.file_name;
+ const detail=document.createElement("div");detail.className="small";
+ detail.textContent=`${o.copies} copies · ${o.paper_size} · ${o.print_mode} · ${new Date(o.created_at).toLocaleString()}`;
+ const status=document.createElement("span");status.className="status";status.textContent=o.status;
+ div.append(name,detail,status);$("orders").append(div);
+ });
+}
+$("refreshBtn").onclick=loadOrders;
+
+async function init(){
+ if(!db){$("authMessage").textContent="Website setup pending: Supabase connection details are required.";return;}
+ const {data}=await db.auth.getSession();
+ if(data.session)showDashboard(data.session.user);
+ db.auth.onAuthStateChange((_event,session)=>{
+ if(session)showDashboard(session.user);
+ else{currentUser=null;showAuth();}
+ });
+}
+translate();init();
+</script>
+</body>
+</html>
